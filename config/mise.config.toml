@@ -1,36 +1,41 @@
 # =============================================================================
 # mise.config.toml — ubuntu-bootstrap 所有开发工具，一个文件
 # =============================================================================
-# 运行 `mise install` 安装所有工具。
-# 运行 `mise ls` 查看已安装内容。
-# 运行 `mise registry` 浏览可用工具。
+# 版本策略：
+#   - 所有工具使用固定版本（非 latest），确保可复现。
+#   - Renovate 自动检测新版本并创建 PR。
+#   - 运行 `mise install` 安装所有工具。
+#   - 运行 `mise ls` 查看已安装内容。
 # =============================================================================
 
 [tools]
 # --- 运行时（core 后端，内置支持）---
+# LTS 主版本号。mise core 后端自动拉取该主版本下的最新补丁版本。
 node = "24"
 go = "1.26"
 
-# --- 开发工具（aqua 后端：GitHub Releases，自动架构/系统检测）---
-"aqua:BurntSushi/ripgrep" = "latest"
-"aqua:sharkdp/fd" = "latest"
-"aqua:sharkdp/bat" = "latest"
-"aqua:jesseduffield/lazygit" = "latest"
-"aqua:dandavison/delta" = "latest"
-"aqua:Wilfred/difftastic" = "latest"
-"aqua:ajeetdsouza/zoxide" = "latest"
-"aqua:tealdeer-rs/tealdeer" = "latest"
-"aqua:eza-community/eza" = "latest"
-"aqua:aristocratos/btop" = "latest"
-"aqua:jesseduffield/lazydocker" = "latest"
-"aqua:bootandy/dust" = "latest"
-"aqua:sxyazi/yazi" = "latest"
-"aqua:zellij-org/zellij" = "latest"
-"aqua:fastfetch-cli/fastfetch" = "latest"
-"aqua:starship/starship" = "latest"
-"aqua:astral-sh/ruff" = "latest"
-"aqua:cli/cli" = "latest"
-"aqua:anomalyco/opencode" = "latest"
+# --- 开发工具（aqua 后端：GitHub Releases）---
+# 版本号来自 GitHub Release tag（去除 v 前缀）。
+# ⚠️ 请勿手动编辑版本 — 由 Renovate 自动管理。
+"aqua:BurntSushi/ripgrep" = "15.1.0"
+"aqua:sharkdp/fd" = "10.4.2"
+"aqua:sharkdp/bat" = "0.26.1"
+"aqua:jesseduffield/lazygit" = "0.61.1"
+"aqua:dandavison/delta" = "0.19.2"
+"aqua:Wilfred/difftastic" = "0.69.0"
+"aqua:ajeetdsouza/zoxide" = "0.9.9"
+"aqua:tealdeer-rs/tealdeer" = "1.8.1"
+"aqua:eza-community/eza" = "0.23.4"
+"aqua:aristocratos/btop" = "1.4.7"
+"aqua:jesseduffield/lazydocker" = "0.25.2"
+"aqua:bootandy/dust" = "1.2.4"
+"aqua:sxyazi/yazi" = "26.5.6"
+"aqua:zellij-org/zellij" = "0.44.3"
+"aqua:fastfetch-cli/fastfetch" = "2.63.1"
+"aqua:starship/starship" = "1.25.1"
+"aqua:astral-sh/ruff" = "0.15.14"
+"aqua:cli/cli" = "2.92.0"
+"aqua:anomalyco/opencode" = "1.15.10"
 
 [settings]
 trusted_config_paths = ["~/.config/mise"]

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "labels": ["dependencies", "renovate"],
+  "semanticCommits": "disabled",
+  "prHourlyLimit": 10,
+  "prConcurrentLimit": 5,
+  "regexManagers": [
+    {
+      "description": "Auto-update mise aqua tool versions in config/mise.config.toml",
+      "fileMatch": ["^config/mise\\.config\\.toml$"],
+      "matchStrings": [
+        "\"aqua:(?<depName>[^\"]+)\"\\s*=\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "loose",
+      "extractVersionTemplate": "^v?(?<version>\\S+)"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Group mise tool updates into a single PR",
+      "matchManagers": ["regex"],
+      "groupName": "mise tools",
+      "groupSlug": "mise-tools"
+    }
+  ]
+}
