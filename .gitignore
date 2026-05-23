@@ -1,0 +1,24 @@
+# Sisyphus 会话数据
+.sisyphus/
+
+# 备份文件
+*.bak.*
+
+# 编辑器
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
+
+# 环境变量（.env.example 除外）
+.env
+.env.*
+!.env.example

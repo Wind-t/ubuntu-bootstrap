@@ -1,0 +1,81 @@
+# =============================================================================
+# .gitconfig — Git 默认配置（使用 delta 美化 diff）
+# =============================================================================
+# user.name / user.email 请手动设置：
+#   git config --global user.name  "Your Name"
+#   git config --global user.email "you@example.com"
+
+[core]
+	editor = micro
+    pager = delta
+    autocrlf = input
+    safecrlf = warn
+    excludesfile = ~/.gitignore_global
+
+[init]
+    defaultBranch = main
+
+[push]
+    default = simple
+    autoSetupRemote = true
+
+[fetch]
+    prune = true
+
+[pull]
+    rebase = false
+
+[diff]
+    colorMoved = default
+
+[merge]
+    conflictstyle = diff3
+
+[delta]
+    features = decorations
+    navigate = true
+    side-by-side = false
+    line-numbers = true
+    hyperlinks = true
+
+[delta "decorations"]
+    commit-decoration-style = bold yellow box ul
+    file-style = bold yellow ul
+    hunk-header-decoration-style = cyan box ul
+    hunk-header-style = file line-number syntax
+
+[interactive]
+    diffFilter = delta --color-only
+
+[alias]
+    # Quick log
+    lg     = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    lga    = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all
+    # Status
+    st     = status -sb
+    # Commit
+    amend  = commit --amend --no-edit
+    undo   = reset --soft HEAD~1
+    # Branch
+    br     = branch
+    co     = checkout
+    # Diff
+    diffc  = diff --cached
+    # Aliases
+    aliases = config --get-regexp alias
+
+[difftool "difftastic"]
+    cmd = difft "$LOCAL" "$REMOTE"
+
+[difftool]
+    prompt = false
+    tool = difftastic
+
+[url "https://github.com/"]
+	insteadOf = git://github.com/
+[credential "https://github.com"]
+	helper =
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/usr/bin/gh auth git-credential

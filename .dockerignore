@@ -1,0 +1,7 @@
+.git
+.github
+.sisyphus
+*.bak.*
+.DS_Store
+.gitignore
+.dockerignore

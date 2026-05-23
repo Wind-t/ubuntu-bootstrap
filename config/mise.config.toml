@@ -1,0 +1,36 @@
+# =============================================================================
+# mise.config.toml — ubuntu-bootstrap 所有开发工具，一个文件
+# =============================================================================
+# 运行 `mise install` 安装所有工具。
+# 运行 `mise ls` 查看已安装内容。
+# 运行 `mise registry` 浏览可用工具。
+# =============================================================================
+
+[tools]
+# --- 运行时（core 后端，内置支持）---
+node = "24"
+go = "1.26"
+
+# --- 开发工具（aqua 后端：GitHub Releases，自动架构/系统检测）---
+"aqua:BurntSushi/ripgrep" = "latest"
+"aqua:sharkdp/fd" = "latest"
+"aqua:sharkdp/bat" = "latest"
+"aqua:jesseduffield/lazygit" = "latest"
+"aqua:dandavison/delta" = "latest"
+"aqua:Wilfred/difftastic" = "latest"
+"aqua:ajeetdsouza/zoxide" = "latest"
+"aqua:tealdeer-rs/tealdeer" = "latest"
+"aqua:eza-community/eza" = "latest"
+"aqua:aristocratos/btop" = "latest"
+"aqua:jesseduffield/lazydocker" = "latest"
+"aqua:bootandy/dust" = "latest"
+"aqua:sxyazi/yazi" = "latest"
+"aqua:zellij-org/zellij" = "latest"
+"aqua:fastfetch-cli/fastfetch" = "latest"
+"aqua:starship/starship" = "latest"
+"aqua:astral-sh/ruff" = "latest"
+"aqua:cli/cli" = "latest"
+"aqua:anomalyco/opencode" = "latest"
+
+[settings]
+trusted_config_paths = ["~/.config/mise"]
