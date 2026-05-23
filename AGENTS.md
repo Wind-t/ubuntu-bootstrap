@@ -1,6 +1,6 @@
 # AGENTS.md — ubuntu-bootstrap
 
-Shell-script Ubuntu dev environment bootstrap. ~500 lines core (~900 total with verify + uninstall). Personal tool, no PR workflow.
+Shell-script Ubuntu dev environment bootstrap. ~500 lines core (~900 total with verify + uninstall). Version-pinned, CI-tested across Ubuntu 22.04/24.04/26.04.
 
 **Supported Ubuntu versions:** 22.04, 24.04, 26.04 (and newer). Version check in `bootstrap.sh` warns for <22.04, passes for ≥22.
 
@@ -15,6 +15,7 @@ make help       # list all targets
 ```
 
 Docker integration test: `docker build -t test . && docker run --rm test`
+To test a specific Ubuntu version: `docker build --build-arg UBUNTU_VERSION=22.04 -t test .`
 (Set `GITHUB_TOKEN` to avoid API rate limits — `test-docker.sh` auto-detects and passes it.)
 
 ## Module rules (non-negotiable)
@@ -42,7 +43,24 @@ bootstrap.sh → lib/common.sh → lib/setup-*.sh
 
 Use `backup_then_link src dst` (from common.sh) for all symlink creation. It handles: already-correct links (skip), existing files (backup with `.bak.TIMESTAMP`), missing parent dirs (auto-create). Never use raw `ln`.
 
-**Dotfile destination list** lives in `UB_DOTFILE_DESTS` (common.sh) — the single source of truth shared by `setup-dotfiles.sh` and `uninstall.sh`. Adding a dotfile means: (a) adding the `backup_then_link` call to `setup-dotfiles.sh`, (b) adding the destination path to `UB_DOTFILE_DESTS`.
+**Dotfile destination list** lives in `UB_DOTFILE_DESTS` (common.sh) — compile-time fallback shared by `setup-dotfiles.sh` and `uninstall.sh`. Adding a dotfile means: (a) adding the `backup_then_link` call to `setup-dotfiles.sh`, (b) adding the `_manifest_add` call (same function, right after `backup_then_link`), (c) adding the destination path to `UB_DOTFILE_DESTS` as fallback.
+
+At runtime, `setup-dotfiles.sh` writes a **manifest** (`~/.local/share/ubuntu-bootstrap/manifest`) recording every symlink. `uninstall.sh` reads this manifest first; falls back to `UB_DOTFILE_DESTS` only if the manifest is missing.
+
+## Mise tool versions
+
+**No `latest`.** All tool versions in `config/mise.config.toml` are pinned to specific release tags. Renovate (`.github/renovate.json`) auto-detects new releases and creates a grouped PR. Do not manually bump versions unless Renovate is unavailable.
+
+Fallback versions for mise/uv binaries (used when GitHub API is down) are centralized in `lib/common.sh` as `UB_MISE_FALLBACK` / `UB_UV_FALLBACK`. CI checks staleness and warns if >30 days behind.
+
+## Makefile module targets
+
+Module targets (`make apt`, `make mise`, etc.) are **auto-generated** from the `MODULES` list at the top of the Makefile. To add a module:
+1. Add its name to `MODULES` (line ~4)
+2. Add a `lib/setup-<name>.sh` file with a `setup_<name>` function
+3. Source and call it in `bootstrap.sh`
+
+All `--skip` lists are derived automatically — no manual editing.
 
 ## Configuration
 
@@ -58,6 +76,13 @@ Use `backup_then_link src dst` (from common.sh) for all symlink creation. It han
 | `QUIET=1` | Suppress all but warnings and errors |
 | `NO_COLOR=1` | Disable ANSI colors (pipes, logs) |
 | `UV_PYTHON_VERSION` | Python version for uv (default `3.14`) |
+
+## Documentation layers
+
+- `README.md` — project overview, quick start, architecture
+- `docs/guide.md` — complete user guide (installation, every tool explained, aliases, day-one walkthrough)
+- `AGENTS.md` — this file, development conventions for AI and maintainers
+- `CHANGELOG.md` — version history
 
 ## Linting
 
