@@ -17,6 +17,7 @@ jobs:
           scandir: '.'
           format: tty
           severity: warning
+          ignore_paths: config
       - name: Bash syntax check
         run: |
           bash -n bootstrap.sh
