@@ -63,17 +63,16 @@ SKIP_INTERACTIVE=1 make
 
 | 工具 | 用途 | 工具 | 用途 |
 |------|------|------|------|
-| node 24 | JavaScript LTS | go 1.26 | Go 工具链 |
-| ripgrep | 代码搜索 | fd | 文件查找 |
-| bat | 语法高亮 cat | lazygit | Git TUI |
-| delta | Git diff 渲染 | difftastic | 结构 diff |
-| zoxide | 智能 cd | tealdeer | 精简 man |
-| eza | 现代 ls | btop | 系统监控 |
-| lazydocker | Docker TUI | dust | 磁盘分析 |
-| yazi | 终端文件管理器 | zellij | 终端复用器 |
-| fastfetch | 系统信息 | starship | Shell 提示符 |
-| ruff | Python linter | gh | GitHub CLI |
-| opencode | AI 编码助手 | | |
+| node 24 | JavaScript LTS | ripgrep | 代码搜索 |
+| fd | 文件查找 | bat | 语法高亮 cat |
+| lazygit | Git TUI | delta | Git diff 渲染 |
+| difftastic | 结构 diff | zoxide | 智能 cd |
+| tealdeer | 精简 man | eza | 现代 ls |
+| btop | 系统监控 | lazydocker | Docker TUI |
+| dust | 磁盘分析 | yazi | 终端文件管理器 |
+| zellij | 终端复用器 | fastfetch | 系统信息 |
+| starship | Shell 提示符 | ruff | Python linter |
+| gh | GitHub CLI | opencode | AI 编码助手 |
 
 </details>
 

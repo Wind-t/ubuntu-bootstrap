@@ -12,7 +12,6 @@
 # --- 运行时（core 后端，内置支持）---
 # LTS 主版本号。mise core 后端自动拉取该主版本下的最新补丁版本。
 node = "24"
-go = "1.26"
 
 # --- 开发工具（aqua 后端：GitHub Releases）---
 # 版本号来自 GitHub Release tag（去除 v 前缀）。
