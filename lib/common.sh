@@ -168,6 +168,7 @@ export UB_MISE_FALLBACK UB_UV_FALLBACK
 # --- 平台检测 ---------------------------------------------------------------
 is_ci()               { [ "${CI:-}" = "true" ]; }
 is_interactive_skip() { [ "${SKIP_INTERACTIVE:-0}" = "1" ]; }
+is_wsl()              { grep -qi microsoft /proc/version 2>/dev/null; }
 
 # --- Dotfile Manifest --------------------------------------------------------
 # 运行时记录所有符号链接，卸载时按记录清理，消除安装/卸载逻辑不同步的风险。

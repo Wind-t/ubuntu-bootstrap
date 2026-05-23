@@ -65,6 +65,15 @@ else
     warn "非 Ubuntu 系统 — 此脚本专为 Ubuntu 设计，可能无法正常工作。"
 fi
 
+# --- WSL 检测 -----------------------------------------------------------------
+if is_wsl; then
+    log "检测到 WSL 环境，将跳过 chsh 等不适用的操作。"
+    if [[ "$SCRIPT_DIR" == /mnt/* ]]; then
+        warn "仓库位于 Windows 分区 ($SCRIPT_DIR)，符号链接可能失败。"
+        warn "建议将仓库克隆到 WSL Linux 分区：cp -r $SCRIPT_DIR ~/ubuntu-bootstrap && cd ~/ubuntu-bootstrap"
+    fi
+fi
+
 trap bootstrap_trap EXIT
 trap interrupt_handler INT TERM
 
@@ -114,6 +123,9 @@ if ! $DRY_RUN; then
     log "全部部署完成（耗时 ${elapsed}s）。"
     log "接下来的步骤："
     log "  1. 重启终端或运行：exec zsh"
+    if is_wsl; then
+        log "     (WSL: 在 ~/.bashrc 末尾添加 exec zsh 可自动启动 zsh)"
+    fi
     log "  2. 验证环境：           bash $SCRIPT_DIR/verify.sh"
     log "  3. (可选) OpenCode 设置：opencode auth login"
     printf '\n'

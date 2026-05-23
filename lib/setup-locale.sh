@@ -33,6 +33,9 @@ setup_locale() {
             log "CI/Docker 环境 — 跳过 chsh。"
         elif is_interactive_skip; then
             log "SKIP_INTERACTIVE=1 — 跳过 chsh。"
+        elif is_wsl; then
+            log "WSL 环境 — chsh 无效，跳过。"
+            log "  如需默认启动 zsh，在 ~/.bashrc 末尾添加: exec zsh"
         else
             # chsh 在原生 Ubuntu 上有正确的用户权限时正常工作。
             log "正在将 zsh 设为默认 Shell..."
