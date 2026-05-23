@@ -8,9 +8,11 @@
 # 若需要安装 GitHub Release 工具（mise aqua 后端），传入 GITHUB_TOKEN:
 #   docker build --build-arg GITHUB_TOKEN="ghp_xxx" -t ubuntu-bootstrap-test .
 # =============================================================================
-FROM ubuntu:24.04
+ARG UBUNTU_VERSION=24.04
+FROM ubuntu:${UBUNTU_VERSION}
 
 ARG GITHUB_TOKEN
+ARG UBUNTU_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive \
     SKIP_INTERACTIVE=1 \
