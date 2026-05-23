@@ -1,8 +1,8 @@
 # AGENTS.md — ubuntu-bootstrap
 
-Shell-script Ubuntu dev environment bootstrap. ~500 lines core (~900 total with verify + uninstall). Version-pinned, CI-tested across Ubuntu 22.04/24.04/26.04.
+Shell-script Ubuntu dev environment bootstrap. ~500 lines core (~900 total with verify + uninstall). Version-pinned, CI-tested across Ubuntu 22.04/24.04/26.04. WSL compatible.
 
-**Supported Ubuntu versions:** 22.04, 24.04, 26.04 (and newer). Version check in `bootstrap.sh` warns for <22.04, passes for ≥22.
+**Supported platforms:** Ubuntu 22.04/24.04/26.04, WSL (Ubuntu). Version check in `bootstrap.sh` warns for <22.04, passes for ≥22.
 
 ## Commands
 
@@ -28,6 +28,16 @@ To test a specific Ubuntu version: `docker build --build-arg UBUNTU_VERSION=22.0
 - **Idempotency is mandatory.** Every setup function must be safe to re-run. Check before acting (e.g. `command -v`, `dpkg -s`, `[ -L "$dst" ]`).
 - **Critical tool install failures must abort.** `setup_mise` uses `fail` (not `warn_track`) when `mise install` exits non-zero — 19 dev tools missing is not a warning.
 - **`sudo apt-get` must preserve `DEBIAN_FRONTEND`.** `sudo` drops this env var by default — debconf prompts (e.g. tzdata timezone selection) will hang CI/Docker builds indefinitely. Pass it inline (`sudo DEBIAN_FRONTEND=noninteractive apt-get`) and ensure `Dockerfile` sets `env_keep` in sudoers as defense in depth.
+
+## Platform detection
+
+Three `is_*` functions in `common.sh` for environment-specific branching:
+
+- `is_ci` — `CI=true` (GitHub Actions / Docker build)
+- `is_interactive_skip` — `SKIP_INTERACTIVE=1` (non-interactive mode)
+- `is_wsl` — `/proc/version` contains "Microsoft" (WSL1/WSL2)
+
+Use these to skip operations that don't apply: `chsh` in CI/WSL, symlink warnings when repo is under `/mnt/`, etc.
 
 ## Dependency chain
 

@@ -4,7 +4,7 @@
 
 一句话：**在新机器或纯净 Ubuntu 上跑一条命令，开发环境全部就绪。**
 
-你拿到一台刚装完系统的 Ubuntu（22.04 / 24.04 / 26.04），克隆这个仓库，`make` 一下，系统包、开发工具链、Shell 配置、dotfiles 全部到位。跑完就能写代码。
+你拿到一台刚装完系统的 Ubuntu（22.04 / 24.04 / 26.04），或者 Windows 上的 WSL Ubuntu，克隆这个仓库，`make` 一下，系统包、开发工具链、Shell 配置、dotfiles 全部到位。跑完就能写代码。
 
 核心设计原则：
 
@@ -457,6 +457,8 @@ cd ubuntu-bootstrap
 make
 ```
 
+> **WSL 用户注意**：请将仓库克隆到 Linux 分区（`~/ubuntu-bootstrap`），不要放在 `/mnt/c/` 下（Windows 分区不支持 Linux 符号链接）。脚本会自动检测 WSL 环境并跳过不适用的操作。
+
 ### 不同场景
 
 ```bash
@@ -574,7 +576,7 @@ ubuntu-bootstrap/
 │   ├── common.sh                   # 基础设施：日志系统、符号链接、下载校验、manifest
 │   ├── setup-apt.sh                # apt 系统包（幂等：只装缺失的）
 │   ├── setup-locale.sh             # locale 生成 + 默认 Shell 设置
-│   ├── setup-mise.sh               # mise 安装 + 19 个开发工具
+│   ├── setup-mise.sh               # mise 安装 + 20 个开发工具
 │   ├── setup-uv.sh                 # uv 安装 + Python
 │   ├── setup-zsh-plugins.sh        # zsh 插件（clone/update）
 │   └── setup-dotfiles.sh           # 符号链接 dotfiles + 写 manifest

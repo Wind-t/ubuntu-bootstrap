@@ -16,6 +16,7 @@
 - Go (golang) 从工具链移除：`mise.config.toml`、starship 提示符、文档表格。
 
 ### Added
+- WSL 支持：自动检测 WSL 环境，跳过无效 `chsh`、警告 `/mnt/` 下符号链接问题、提示正确配置方式。
 - AGENTS.md 新增模块规则：`sudo apt-get` 必须保留 `DEBIAN_FRONTEND`。
 
 ### Changed

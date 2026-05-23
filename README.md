@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  Ubuntu 开发环境一键部署 · 幂等 · CI 测试 · 版本锁定
+  Ubuntu 开发环境一键部署 · 幂等 · CI 测试 · 版本锁定 · WSL 兼容
 </p>
 
 <p align="center">
@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/ubuntu-22.04%20%7C%2024.04%20%7C%2026.04-E95420?logo=ubuntu" alt="Ubuntu">
+  <img src="https://img.shields.io/badge/ubuntu-22.04%20%7C%2024.04%20%7C%2026.04%20%7C%20WSL-E95420?logo=ubuntu" alt="Ubuntu">
   <img src="https://img.shields.io/badge/version-1.2.0-blue" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
   <a href="https://github.com/Wind-t/ubuntu-bootstrap/actions"><img src="https://img.shields.io/github/actions/workflow/status/Wind-t/ubuntu-bootstrap/test.yml?branch=main" alt="CI"></a>
