@@ -37,9 +37,9 @@ alias lg='lazygit'
 
 # 现代替代工具
 command -v rg &>/dev/null && alias grep='rg'
-alias find='fd'
-alias cat='bat --paging=never'
-alias top='btop'
+command -v fd &>/dev/null && alias find='fd'
+command -v bat &>/dev/null && alias cat='bat --paging=never'
+command -v btop &>/dev/null && alias top='btop'
 
 # uv
 alias uvr='uv run'

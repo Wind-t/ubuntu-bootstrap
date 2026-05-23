@@ -38,8 +38,10 @@ setup_uv() {
         fi
         ensure_dir "$HOME/.local/bin"
         cp "$tmp_dir/uv-${arch}/uv" "$HOME/.local/bin/uv"
-        cp "$tmp_dir/uv-${arch}/uvx" "$HOME/.local/bin/uvx" 2>/dev/null || true
-        chmod +x "$HOME/.local/bin/uv" "$HOME/.local/bin/uvx"
+        chmod +x "$HOME/.local/bin/uv"
+        if cp "$tmp_dir/uv-${arch}/uvx" "$HOME/.local/bin/uvx" 2>/dev/null; then
+            chmod +x "$HOME/.local/bin/uvx"
+        fi
 
         rm -rf "$tmp_dir" "$uv_tarball"
         success "uv ${uv_ver} 安装完成（SHA256 校验通过）。"

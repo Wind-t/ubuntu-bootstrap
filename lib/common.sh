@@ -177,6 +177,10 @@ UB_MANIFEST="${UB_MANIFEST_DIR}/manifest"
 _manifest_add() {
     local src="$1" dst="$2"
     ensure_dir "$UB_MANIFEST_DIR"
+    # Dedup: skip if this exact entry already exists (safe to re-run)
+    if [ -f "$UB_MANIFEST" ] && grep -qxF "${dst}"$'\t'"${src}" "$UB_MANIFEST" 2>/dev/null; then
+        return 0
+    fi
     printf '%s\t%s\n' "$dst" "$src" >> "$UB_MANIFEST"
 }
 
