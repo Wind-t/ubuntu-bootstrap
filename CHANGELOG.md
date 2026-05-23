@@ -8,6 +8,15 @@
 
 ### Fixed
 - Docker 构建在 Ubuntu 22.04 上因 `tzdata` debconf 交互提示而永久挂死。修复：Dockerfile 预安装 `tzdata` 并预配时区 + `sudo` 保留 `DEBIAN_FRONTEND` + 所有 `sudo apt-get` 调用显式传入 `DEBIAN_FRONTEND=noninteractive`。
+- `setup-uv.sh`：`chmod +x uvx` 在 uv 发布包不含 uvx 时会因 `set -e` 中断流程。改为存在性检查后再 chmod。
+- `06-aliases.zsh`：`find`/`cat`/`top` 别名无条件覆盖，工具缺失时系统命令失效。改为 `command -v` 条件守卫。
+- `_manifest_add` 幂等执行会重复追加条目。改为去重逻辑。
+
+### Removed
+- Go (golang) 从工具链移除：`mise.config.toml`、starship 提示符、文档表格。
+
+### Added
+- AGENTS.md 新增模块规则：`sudo apt-get` 必须保留 `DEBIAN_FRONTEND`。
 
 ### Changed
 - **Breaking behavior**: mise 工具版本从 `latest` 改为固定版本号，确保可复现。
