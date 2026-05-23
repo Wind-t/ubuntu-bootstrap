@@ -1,4 +1,4 @@
-name: Test
+name: Lint
 
 on:
   push:
@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Run shellcheck
         uses: ludeeus/action-shellcheck@2.0.0
         with:
@@ -18,19 +19,13 @@ jobs:
           format: tty
           severity: warning
           ignore_paths: config
+
       - name: Bash syntax check
         run: |
           bash -n bootstrap.sh
           bash -n verify.sh
           bash -n uninstall.sh
           for f in lib/*.sh; do bash -n "$f" || exit 1; done
+
       - name: Dry-run test
         run: bash bootstrap.sh --dry-run
-
-  integration:
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - uses: actions/checkout@v4
-      - name: Docker integration test
-        run: bash test-docker.sh

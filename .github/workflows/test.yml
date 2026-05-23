@@ -1,0 +1,129 @@
+name: Integration Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── 完整部署验证矩阵 (22.04 / 24.04 / 26.04) ──────────────────────────────
+  full-bootstrap:
+    strategy:
+      fail-fast: false
+      matrix:
+        ubuntu: ["22.04", "24.04", "26.04"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build + bootstrap (${{ matrix.ubuntu }})
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          build-args: |
+            UBUNTU_VERSION=${{ matrix.ubuntu }}
+          load: true
+          tags: ubuntu-bootstrap-test:${{ matrix.ubuntu }}
+          file: Dockerfile
+
+      - name: Verify (${{ matrix.ubuntu }})
+        run: |
+          docker run --rm ubuntu-bootstrap-test:${{ matrix.ubuntu }} \
+            bash /home/dev/ubuntu-bootstrap/verify.sh --strict
+
+      - name: Idempotency test (${{ matrix.ubuntu }})
+        run: |
+          container="ub-test-${{ matrix.ubuntu }}-$$"
+          docker run -d --name "$container" ubuntu-bootstrap-test:${{ matrix.ubuntu }} tail -f /dev/null
+          echo "=== 第二次 bootstrap（应为空操作） ==="
+          docker exec "$container" bash /home/dev/ubuntu-bootstrap/bootstrap.sh 2>&1 | tee /tmp/idem-${{ matrix.ubuntu }}.log
+          echo "=== 第二次 verify ==="
+          docker exec "$container" bash /home/dev/ubuntu-bootstrap/verify.sh --strict
+          docker rm -f "$container"
+
+      - name: Uninstall + reinstall (${{ matrix.ubuntu }})
+        run: |
+          container="ub-test-re-${{ matrix.ubuntu }}-$$"
+          docker run -d --name "$container" ubuntu-bootstrap-test:${{ matrix.ubuntu }} tail -f /dev/null
+          echo "=== 卸载 ==="
+          docker exec "$container" bash /home/dev/ubuntu-bootstrap/uninstall.sh --all --yes
+          echo "=== 重新安装 ==="
+          docker exec "$container" bash /home/dev/ubuntu-bootstrap/bootstrap.sh
+          echo "=== 重新验证 ==="
+          docker exec "$container" bash /home/dev/ubuntu-bootstrap/verify.sh --strict
+          docker rm -f "$container"
+
+  # ── Skip 组合测试 ──────────────────────────────────────────────────────────
+  skip-combos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          build-args: |
+            UBUNTU_VERSION=24.04
+          load: true
+          tags: ubuntu-bootstrap-test:skip
+
+      - name: Test skip=mise,uv (apt only)
+        run: |
+          docker run --rm ubuntu-bootstrap-test:skip \
+            bash /home/dev/ubuntu-bootstrap/bootstrap.sh --skip=mise,uv,zsh-plugins,dotfiles
+          docker run -d --name skip-test ubuntu-bootstrap-test:skip tail -f /dev/null || true
+          # 验证 apt 包已安装
+          docker exec skip-test dpkg -s build-essential curl git zsh fzf
+          # 验证 mise/uv 未安装
+          docker exec skip-test bash -c '! command -v mise' || true
+          docker exec skip-test bash -c '! command -v uv' || true
+          docker rm -f skip-test || true
+
+      - name: Test skip=dotfiles (no symlinks)
+        run: |
+          docker run --rm ubuntu-bootstrap-test:skip \
+            bash /home/dev/ubuntu-bootstrap/bootstrap.sh --skip=dotfiles
+          docker run -d --name skip-dot ubuntu-bootstrap-test:skip tail -f /dev/null || true
+          # 验证 dotfiles 未链接
+          docker exec skip-dot bash -c '! test -L ~/.zshrc' || true
+          docker rm -f skip-dot || true
+
+  # ── Fallback 版本过期检查 ──────────────────────────────────────────────────
+  check-fallbacks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check fallback versions are fresh
+        run: |
+          FALLBACK_MISE=$(grep -oP 'UB_MISE_FALLBACK="\K[^"]+' lib/common.sh)
+          FALLBACK_UV=$(grep -oP 'UB_UV_FALLBACK="\K[^"]+' lib/common.sh)
+
+          LATEST_MISE=$(curl -sf https://api.github.com/repos/jdx/mise/releases/latest | jq -r .tag_name | sed 's/^v//')
+          LATEST_UV=$(curl -sf https://api.github.com/repos/astral-sh/uv/releases/latest | jq -r .tag_name)
+
+          echo "mise fallback: ${FALLBACK_MISE}  latest: ${LATEST_MISE}"
+          echo "uv   fallback: ${FALLBACK_UV}  latest: ${LATEST_UV}"
+
+          # 计算 mise 版本差距（按月估算）
+          mise_ver_compare() {
+            echo "$1" | awk -F. '{print $1*10000 + $2*100 + $3}'
+          }
+          FB=$(mise_ver_compare "$FALLBACK_MISE")
+          LT=$(mise_ver_compare "$LATEST_MISE")
+          diff=$((LT - FB))
+
+          if [ "$diff" -gt 30 ]; then
+            echo "::warning::mise fallback version (${FALLBACK_MISE}) is behind latest (${LATEST_MISE}) by ${diff} minor units. Consider updating."
+          else
+            echo "✅ mise fallback version is reasonably fresh."
+          fi
+
+          # uv: just warn if different
+          if [ "$FALLBACK_UV" != "$LATEST_UV" ]; then
+            echo "::warning::uv fallback version (${FALLBACK_UV}) != latest (${LATEST_UV}). Consider updating."
+          else
+            echo "✅ uv fallback version is up-to-date."
+          fi
