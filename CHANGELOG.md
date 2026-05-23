@@ -6,6 +6,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- Docker 构建在 Ubuntu 22.04 上因 `tzdata` debconf 交互提示而永久挂死。修复：Dockerfile 预安装 `tzdata` 并预配时区 + `sudo` 保留 `DEBIAN_FRONTEND` + 所有 `sudo apt-get` 调用显式传入 `DEBIAN_FRONTEND=noninteractive`。
+
 ### Changed
 - **Breaking behavior**: mise 工具版本从 `latest` 改为固定版本号，确保可复现。
 - Makefile 模块 target 改为自动生成，新增模块无需手动更新 `--skip` 列表。

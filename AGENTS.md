@@ -27,6 +27,7 @@ To test a specific Ubuntu version: `docker build --build-arg UBUNTU_VERSION=22.0
 - **Never** use `echo`/`printf` directly for user-facing output. Use the logging functions: `log` (info), `success` (done), `warn` (non-fatal), `fail` (abort), `die` (fatal with code).
 - **Idempotency is mandatory.** Every setup function must be safe to re-run. Check before acting (e.g. `command -v`, `dpkg -s`, `[ -L "$dst" ]`).
 - **Critical tool install failures must abort.** `setup_mise` uses `fail` (not `warn_track`) when `mise install` exits non-zero — 19 dev tools missing is not a warning.
+- **`sudo apt-get` must preserve `DEBIAN_FRONTEND`.** `sudo` drops this env var by default — debconf prompts (e.g. tzdata timezone selection) will hang CI/Docker builds indefinitely. Pass it inline (`sudo DEBIAN_FRONTEND=noninteractive apt-get`) and ensure `Dockerfile` sets `env_keep` in sudoers as defense in depth.
 
 ## Dependency chain
 
