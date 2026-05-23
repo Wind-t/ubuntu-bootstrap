@@ -19,18 +19,23 @@ ENV DEBIAN_FRONTEND=noninteractive \
     QUIET=1 \
     GITHUB_TOKEN=${GITHUB_TOKEN}
 
+# 时区预配置（防止 tzdata 在 22.04 构建时弹出交互提示）
+RUN ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
+
 # 最小化系统依赖（bootstrap.sh 本身需要 sudo + curl）
 RUN apt-get update -qq \
     && apt-get install -y -qq --no-install-recommends \
+        tzdata \
         sudo \
         curl \
         ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# 创建非 root 用户并赋予免密 sudo
+# 创建非 root 用户并赋予免密 sudo，同时保留 DEBIAN_FRONTEND 防止 apt 交互提示
 RUN useradd -m -s /bin/bash dev \
-    && echo "dev ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/dev
+    && echo "dev ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/dev \
+    && echo 'Defaults env_keep += "DEBIAN_FRONTEND"' > /etc/sudoers.d/debconf
 
 USER dev
 WORKDIR /home/dev

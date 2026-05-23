@@ -49,12 +49,12 @@ setup_apt() {
     fi
 
     log "正在更新软件包列表..."
-    sudo apt-get update -qq
+    sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq
 
     log "正在安装 ${#missing[@]} 个缺失的系统包..."
-    sudo apt-get install -y -qq -o Acquire::Retries=3 "${missing[@]}" || {
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq -o Acquire::Retries=3 "${missing[@]}" || {
         log "部分包下载失败，尝试修复..."
-        sudo apt-get install -y -qq --fix-missing -o Acquire::Retries=3 "${missing[@]}" || \
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --fix-missing -o Acquire::Retries=3 "${missing[@]}" || \
             fail "系统包安装失败（网络问题？）"
     }
 
