@@ -67,33 +67,51 @@ section "ubuntu-bootstrap 卸载"
 # --- 第 1 步: 解除 dotfile 符号链接 -------------------------------------------
 log "正在解除 dotfile 符号链接..."
 COUNT=0
-for dst in "${UB_DOTFILE_DESTS[@]}"; do
-    if [ -L "$dst" ]; then
-        target=$(readlink "$dst")
-        if [[ "$target" == "$SCRIPT_DIR/"* ]]; then
+
+# 优先使用 manifest（运行时记录，最准确）。
+# 若 manifest 不存在，回退到 UB_DOTFILE_DESTS（编译时定义）。
+if [ -f "$UB_MANIFEST" ]; then
+    while IFS=$'\t' read -r dst src; do
+        [ -z "$dst" ] && continue
+        if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
             rm "$dst"
             success "已删除: $dst"
             COUNT=$((COUNT + 1))
-        else
-            warn "跳过 (非 ubuntu-bootstrap): $dst → $target"
+        elif [ -f "$dst" ]; then
+            warn "跳过 (普通文件，非符号链接): $dst"
         fi
-    elif [ -f "$dst" ]; then
-        warn "跳过 (普通文件，非符号链接): $dst"
-    fi
-done
-
-# zsh 模块
-if [ -d "$ZSH_MODULE_DIR" ]; then
-    for f in "$ZSH_MODULE_DIR"/*.zsh; do
-        if [ -L "$f" ]; then
-            target=$(readlink "$f")
+    done < "$UB_MANIFEST"
+    rm -f "$UB_MANIFEST"
+else
+    # Fallback: compile-time dotfile list
+    for dst in "${UB_DOTFILE_DESTS[@]}"; do
+        if [ -L "$dst" ]; then
+            target=$(readlink "$dst")
             if [[ "$target" == "$SCRIPT_DIR/"* ]]; then
-                rm "$f"
-                success "已删除: $f"
+                rm "$dst"
+                success "已删除: $dst"
                 COUNT=$((COUNT + 1))
+            else
+                warn "跳过 (非 ubuntu-bootstrap): $dst → $target"
             fi
+        elif [ -f "$dst" ]; then
+            warn "跳过 (普通文件，非符号链接): $dst"
         fi
     done
+
+    # zsh 模块
+    if [ -d "$ZSH_MODULE_DIR" ]; then
+        for f in "$ZSH_MODULE_DIR"/*.zsh; do
+            if [ -L "$f" ]; then
+                target=$(readlink "$f")
+                if [[ "$target" == "$SCRIPT_DIR/"* ]]; then
+                    rm "$f"
+                    success "已删除: $f"
+                    COUNT=$((COUNT + 1))
+                fi
+            fi
+        done
+    fi
 fi
 log "已解除 $COUNT 个 dotfile 符号链接。"
 

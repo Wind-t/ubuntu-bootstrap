@@ -8,9 +8,6 @@ set -euo pipefail
 # Guard: fallback for standalone sourcing (e.g. debugging).
 : "${SCRIPT_DIR:=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
-# 兜底版本：当 GitHub API 不可用时使用（不定期更新即可，mise 启动后会自动检查更新）
-MISE_FALLBACK_VERSION="2026.5.14"
-
 setup_mise() {
     set_step "mise install + tools"
     section "mise：版本管理器与开发工具"
@@ -25,7 +22,7 @@ setup_mise() {
         mise_ver="$(curl --proto '=https' --tlsv1.2 -fsSL --retry 2 \
             "https://api.github.com/repos/jdx/mise/releases/latest" 2>/dev/null \
             | grep -oP '"tag_name":\s*"\K[^"]+' || true)"
-        mise_ver="${mise_ver:-v${MISE_FALLBACK_VERSION}}"
+        mise_ver="${mise_ver:-v${UB_MISE_FALLBACK}}"
         local ver_no_v="${mise_ver#v}"
 
         local bin_url sha_url tar_name
@@ -55,6 +52,7 @@ setup_mise() {
     export PATH="$HOME/.local/bin:$PATH"
 
     backup_then_link "$SCRIPT_DIR/config/mise.config.toml" "$HOME/.config/mise/config.toml"
+    _manifest_add "$SCRIPT_DIR/config/mise.config.toml" "$HOME/.config/mise/config.toml"
 
     local tool_count
     tool_count=$(grep -cE '^\s*"[^"]+"\s*=' "$SCRIPT_DIR/config/mise.config.toml" 2>/dev/null || printf '%s' '?')

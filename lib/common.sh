@@ -158,6 +158,39 @@ _fetch_verified() {
     eval "$out_var=\"$bin_file\""
 }
 
+# --- 兜底版本（集中管理）----------------------------------------------------
+# 当 GitHub API 不可用时使用。CI 自动检查是否过期。
+# 保持与最新 release 差距在 30 天内。
+UB_MISE_FALLBACK="2026.5.14"
+UB_UV_FALLBACK="0.11.16"
+export UB_MISE_FALLBACK UB_UV_FALLBACK
+
 # --- 平台检测 ---------------------------------------------------------------
 is_ci()               { [ "${CI:-}" = "true" ]; }
 is_interactive_skip() { [ "${SKIP_INTERACTIVE:-0}" = "1" ]; }
+
+# --- Dotfile Manifest --------------------------------------------------------
+# 运行时记录所有符号链接，卸载时按记录清理，消除安装/卸载逻辑不同步的风险。
+UB_MANIFEST_DIR="${HOME}/.local/share/ubuntu-bootstrap"
+UB_MANIFEST="${UB_MANIFEST_DIR}/manifest"
+
+_manifest_add() {
+    local src="$1" dst="$2"
+    ensure_dir "$UB_MANIFEST_DIR"
+    printf '%s\t%s\n' "$dst" "$src" >> "$UB_MANIFEST"
+}
+
+_manifest_remove_all() {
+    if [ ! -f "$UB_MANIFEST" ]; then
+        return 0
+    fi
+    local count=0
+    while IFS=$'\t' read -r dst src; do
+        [ -z "$dst" ] && continue
+        if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
+            rm "$dst" && count=$((count + 1))
+        fi
+    done < "$UB_MANIFEST"
+    rm -f "$UB_MANIFEST"
+    return "$count"
+}

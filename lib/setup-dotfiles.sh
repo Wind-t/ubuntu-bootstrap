@@ -29,5 +29,17 @@ setup_dotfiles() {
         backup_then_link "$f" "$ZSH_MODULE_DST/$(basename "$f")"
     done
 
+    # Write manifest for uninstall consistency
+    _manifest_add "$SCRIPT_DIR/config/.zshrc"       "$HOME/.zshrc"
+    _manifest_add "$SCRIPT_DIR/config/.zshenv"      "$HOME/.zshenv"
+    _manifest_add "$SCRIPT_DIR/config/.profile"     "$HOME/.profile"
+    _manifest_add "$SCRIPT_DIR/config/.gitconfig"   "$HOME/.gitconfig"
+    _manifest_add "$SCRIPT_DIR/config/.gitignore_global" "$HOME/.gitignore_global"
+    _manifest_add "$SCRIPT_DIR/config/starship.toml" "$HOME/.config/starship.toml"
+    for f in "$ZSH_MODULE_SRC"/*.zsh; do
+        [ -f "$f" ] || continue
+        _manifest_add "$f" "$ZSH_MODULE_DST/$(basename "$f")"
+    done
+
     success "Dotfiles 链接完成。"
 }

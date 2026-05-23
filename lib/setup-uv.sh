@@ -4,9 +4,6 @@
 # =============================================================================
 set -euo pipefail
 
-# 兜底版本：当 GitHub API 不可用时使用
-UV_FALLBACK_VERSION="0.11.16"
-
 setup_uv() {
     set_step "uv + Python"
     section "uv：Python 工具链"
@@ -21,7 +18,7 @@ setup_uv() {
         uv_ver="$(curl --proto '=https' --tlsv1.2 -fsSL --retry 2 \
             "https://api.github.com/repos/astral-sh/uv/releases/latest" 2>/dev/null \
             | grep -oP '"tag_name":\s*"\K[^"]+' || true)"
-        uv_ver="${uv_ver:-${UV_FALLBACK_VERSION}}"
+        uv_ver="${uv_ver:-${UB_UV_FALLBACK}}"
 
         local arch bin_url sha_url
         arch="x86_64-unknown-linux-gnu"
