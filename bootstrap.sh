@@ -19,6 +19,7 @@ source "$SCRIPT_DIR/lib/common.sh"
 # --- CLI 参数解析 ------------------------------------------------------------
 DRY_RUN=false
 SKIP_MODULES=""
+MINIMAL_MODE=false
 
 print_help() {
     cat <<'EOF'
@@ -28,6 +29,7 @@ print_help() {
   --help        显示此帮助信息并退出。
   --version     显示版本号并退出。
   --dry-run     仅显示将要执行的操作，不实际执行。
+  --minimal     最小化安装：仅核心开发工具（node, ripgrep, fd, lazygit）
   --skip=LIST   跳过指定模块（逗号分隔）。
                 可用: apt, locale, mise, uv, zsh-plugins, dotfiles
 
@@ -38,6 +40,7 @@ print_help() {
 
 示例:
   bash bootstrap.sh                              # 完整部署
+  bash bootstrap.sh --minimal                    # 最小化部署
   bash bootstrap.sh --dry-run                    # 预览
   bash bootstrap.sh --skip=dotfiles              # 跳过 dotfiles 模块
   bash bootstrap.sh --skip=mise,uv,zsh-plugins   # 跳过多个模块
@@ -50,10 +53,12 @@ for arg in "$@"; do
         --help)    print_help ;;
         --version) cat "$SCRIPT_DIR/VERSION" 2>/dev/null || printf '%s\n' 'dev'; exit 0 ;;
         --dry-run) DRY_RUN=true ;;
+        --minimal) MINIMAL_MODE=true ;;
         --skip=*)  SKIP_MODULES="${arg#--skip=}"; SKIP_MODULES="${SKIP_MODULES//[$' \t']/}" ;;
         *)         warn "未知选项: $arg（使用 --help 查看用法）"; exit 2 ;;
     esac
 done
+export MINIMAL_MODE
 
 # --- Ubuntu 版本检查 ---------------------------------------------------------
 if grep -qi 'ubuntu' /etc/os-release 2>/dev/null; then
@@ -77,8 +82,13 @@ fi
 trap bootstrap_trap EXIT
 trap interrupt_handler INT TERM
 
+_ensure_local_bin_path
+
 section "ubuntu-bootstrap"
 log "版本: $(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo 'dev')"
+if $MINIMAL_MODE; then
+    log "[MINIMAL] 最小化模式 — 仅安装核心工具。"
+fi
 if $DRY_RUN; then
     log "[DRY-RUN] 仅预览，不执行实际操作。"
     printf '\n'

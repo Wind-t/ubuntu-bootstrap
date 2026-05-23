@@ -52,7 +52,7 @@ SKIP_INTERACTIVE=1 make
 <details open>
 <summary><b>系统包</b> (apt)</summary>
 
-`build-essential` `curl` `wget` `git` `unzip` `zip` `unar` `jq` `tree` `micro` `ca-certificates` `gnupg` `lsb-release` `software-properties-common` `locales` `xdg-utils` `zsh` `fzf`
+`build-essential` `curl` `wget` `git` `unzip` `zip` `unar` `jq` `tree` `ca-certificates` `gnupg` `lsb-release` `software-properties-common` `locales` `xdg-utils` `zsh` `fzf`
 
 </details>
 
@@ -136,8 +136,8 @@ docker run --rm ubuntu-bootstrap-test
 Dotfile（`.zshrc`、`.gitconfig` 等）通过符号链接指向仓库 `config/` 目录。
 
 ```bash
-micro ~/.zshrc      # 实际改的是 config/.zshrc
-micro ~/.gitconfig  # 实际改的是 config/.gitconfig
+nano ~/.zshrc      # 实际改的是 config/.zshrc
+nano ~/.gitconfig  # 实际改的是 config/.gitconfig
 ```
 
 添加个人配置——创建 `config/zsh/11-local.zsh`（不会被覆盖）：

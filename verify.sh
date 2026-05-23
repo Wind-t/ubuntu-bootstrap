@@ -187,7 +187,6 @@ check_opt "Ruff 已安装"            "ruff --version"
 # --- 开发工具 (apt 管理) ---------------------------------------------------
 print_section "开发工具"
 check_opt "fzf"                "fzf --version"
-check_opt "micro 编辑器"       "micro --version"
 check_opt "tree"               "tree --version"
 
 # --- Dotfiles ----------------------------------------------------------------

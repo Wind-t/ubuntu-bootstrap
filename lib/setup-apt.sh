@@ -18,7 +18,6 @@ setup_apt() {
         unar
         jq
         tree
-        micro
         ca-certificates
         gnupg
         lsb-release

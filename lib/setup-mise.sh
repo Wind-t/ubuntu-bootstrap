@@ -49,17 +49,24 @@ setup_mise() {
         success "mise ${ver_no_v} 安装完成（SHA256 校验通过）。"
     fi
 
-    export PATH="$HOME/.local/bin:$PATH"
-
     backup_then_link "$SCRIPT_DIR/config/mise.config.toml" "$HOME/.config/mise/config.toml"
     _manifest_add "$SCRIPT_DIR/config/mise.config.toml" "$HOME/.config/mise/config.toml"
 
     local tool_count
     tool_count=$(grep -cE '^\s*"[^"]+"\s*=' "$SCRIPT_DIR/config/mise.config.toml" 2>/dev/null || printf '%s' '?')
-    log "正在通过 mise 安装 ${tool_count} 个工具..."
-    if mise install; then
-        success "mise 工具链安装完成：$(mise --version 2>/dev/null)"
+    if [ "${MINIMAL_MODE:-false}" = "true" ]; then
+        log "最小化模式：仅安装 node, ripgrep, fd, lazygit..."
+        if mise install --jobs 4 node ripgrep fd lazygit; then
+            success "mise 核心工具安装完成：$(mise --version 2>/dev/null)"
+        else
+            fail "mise install 失败 — 开发工具未安装。请检查网络后重试。"
+        fi
     else
-        fail "mise install 失败 — 开发工具未安装。请检查网络后重试。"
+        log "正在通过 mise 安装 ${tool_count} 个工具..."
+        if mise install --jobs 4; then
+            success "mise 工具链安装完成：$(mise --version 2>/dev/null)"
+        else
+            fail "mise install 失败 — 开发工具未安装。请检查网络后重试。"
+        fi
     fi
 }

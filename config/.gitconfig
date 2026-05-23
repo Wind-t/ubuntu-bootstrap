@@ -6,8 +6,6 @@
 #   git config --global user.email "you@example.com"
 
 [core]
-	editor = micro
-    pager = delta
     autocrlf = input
     safecrlf = warn
     excludesfile = ~/.gitignore_global

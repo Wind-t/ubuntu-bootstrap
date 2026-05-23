@@ -47,8 +47,6 @@ setup_uv() {
         success "uv ${uv_ver} 安装完成（SHA256 校验通过）。"
     fi
 
-    export PATH="$HOME/.local/bin:$PATH"
-
     PYTHON_VERSION="${UV_PYTHON_VERSION:-3.14}"
     log "正在通过 uv 安装 Python ${PYTHON_VERSION}..."
     if uv python install "$PYTHON_VERSION"; then

@@ -33,21 +33,24 @@ section() {
 }
 
 # --- 警告追踪 ---------------------------------------------------------------
-# 累积非致命警告，在结束时统一报告。
+# 累积非致命警告，在结束时统一报告，不打断安装流程。
 declare -ga _WARNINGS=()
 
 warn_track() {
-    local msg="$*"
-    _WARNINGS+=("$msg")
-    warn "$msg"
+    _WARNINGS+=("$*")
 }
 
 print_warnings_summary() {
-    if [ ${#_WARNINGS[@]} -gt 0 ]; then
-        printf '\n'
-        printf '%s⚠ 共 %d 条警告（已在安装过程中显示，建议复查）%s\n' "$C_YELLOW" "${#_WARNINGS[@]}" "$C_NC"
-        printf '\n'
+    if [ ${#_WARNINGS[@]} -eq 0 ]; then
+        return 0
     fi
+    printf '\n'
+    printf '%s━━━ %d 条警告（建议复查）━━━%s\n' "$C_YELLOW" "${#_WARNINGS[@]}" "$C_NC"
+    local w
+    for w in "${_WARNINGS[@]}"; do
+        printf '  %s•%s %s\n' "$C_YELLOW" "$C_NC" "$w"
+    done
+    printf '\n'
 }
 
 # --- 错误捕获 ----------------------------------------------------------------
@@ -84,6 +87,14 @@ ensure_dir() {
     if [ ! -d "$dir" ]; then
         mkdir -p "$dir" || die "创建目录失败：$dir"
     fi
+}
+
+# 将 ~/.local/bin 添加到 PATH 头部（幂等，只添加一次）
+_ensure_local_bin_path() {
+    case ":$PATH:" in
+        *:"$HOME/.local/bin":*) ;;
+        *) export PATH="$HOME/.local/bin:$PATH" ;;
+    esac
 }
 
 backup_then_link() {
