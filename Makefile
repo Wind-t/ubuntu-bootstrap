@@ -1,14 +1,26 @@
-.PHONY: all apt locale mise uv zsh-plugins dotfiles verify test test-docker clean help
+.PHONY: all verify test test-docker clean help
 
+# ── 模块列表（单一定义，自动生成所有 target）────────────────────────────────
+# 新增模块只需在此数组中加一个词。
+MODULES := apt locale mise uv zsh-plugins dotfiles
+
+# ── auto-generated: make apt, make mise, make dotfiles, … ─────────────────────
+# 每个 target 运行 bootstrap.sh，跳过除自身之外的所有模块。
+empty :=
+space := $(empty) $(empty)
+comma := ,
+
+define single_module
+$(1):
+	@bash bootstrap.sh --skip=$(subst $(space),$(comma),$(filter-out $(1),$(MODULES)))
+endef
+
+$(foreach m,$(MODULES),$(eval $(call single_module,$(m))))
+.PHONY: $(MODULES)
+
+# ── 顶层 target ──────────────────────────────────────────────────────────────
 all:
 	@bash bootstrap.sh
-
-apt:            ; @bash bootstrap.sh --skip=locale,mise,uv,zsh-plugins,dotfiles
-locale:         ; @bash bootstrap.sh --skip=apt,mise,uv,zsh-plugins,dotfiles
-mise:           ; @bash bootstrap.sh --skip=apt,locale,uv,zsh-plugins,dotfiles
-uv:             ; @bash bootstrap.sh --skip=apt,locale,mise,zsh-plugins,dotfiles
-zsh-plugins:    ; @bash bootstrap.sh --skip=apt,locale,mise,uv,dotfiles
-dotfiles:       ; @bash bootstrap.sh --skip=apt,locale,mise,uv,zsh-plugins
 
 verify:
 	@bash verify.sh
@@ -21,6 +33,8 @@ test:
 	@for f in lib/*.sh; do bash -n "$$f" || exit 1; done
 	@echo "==> dry-run"
 	@bash bootstrap.sh --dry-run
+	@echo "==> verify --strict"
+	@bash verify.sh --strict
 	@echo "==> test passed"
 
 test-docker:
@@ -31,9 +45,10 @@ clean:
 
 help:
 	@echo "make                  install everything"
-	@echo "make apt              system packages only"
-	@echo "make mise             dev tools only"
+	@for m in $(MODULES); do \
+		printf 'make %-16s install %s only\n' "$$m" "$$m"; \
+	done
 	@echo "make verify           health check"
-	@echo "make test             lint + syntax + dry-run"
+	@echo "make test             lint + syntax + dry-run + verify --strict"
 	@echo "make test-docker      full Docker integration test"
 	@echo "make clean            remove everything"
